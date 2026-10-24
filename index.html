@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5Д — Правила нашего чата</title>
+<style>
+:root{--gold:#ffd05b;--chalk:#0b3736}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:22px 12px;background:#0d2032;color:#fff;font-family:system-ui,sans-serif}
+.shell{max-width:760px;margin:auto;position:relative;isolation:isolate}
+.scene{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.orb{position:absolute;width:220px;height:220px;border-radius:50%;filter:blur(60px);opacity:.2;animation:orb 8s ease-in-out infinite alternate}
+.orb.one{background:#15b8a6;top:5%;left:-80px}
+.orb.two{background:#e5a42e;bottom:8%;right:-80px;animation-delay:-4s}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+.brand{font-weight:950;letter-spacing:1.5px;font-size:13px}
+.badge{font-size:11px;background:#ffffff12;border:1px solid #ffffff25;border-radius:30px;padding:8px 11px;color:#d8e9e8}
+.hero{position:relative;text-align:center;padding:24px 14px 25px;border:1px solid #ffffff20;border-radius:22px;background:linear-gradient(145deg,#104542ed,#092d32f2);box-shadow:0 12px 40px #0002;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 27px,#ffffff07 28px);pointer-events:none}
+.emblem{width:88px;height:88px;border-radius:27px;border:2px solid #ffda7a;background:linear-gradient(145deg,#ffe39b,#f5b82f);display:grid;place-items:center;margin:0 auto 14px;box-shadow:0 0 0 7px #ffc94713,0 0 35px #ffc94725;position:relative;animation:entry 1s cubic-bezier(.2,.8,.2,1) both,float 3.4s ease-in-out 1s infinite}
+.emblem:after{content:"";position:absolute;inset:-7px;border:1px dashed #ffdc79;border-radius:31px;animation:spin 12s linear infinite}
+.crest{font-size:25px;line-height:1;color:#173b3a;font-weight:1000;text-align:center}
+.crest small{display:block;font-size:10px;letter-spacing:2px;margin-top:4px}
+.eyebrow{font-size:10px;font-weight:900;letter-spacing:2.5px;color:#ffdc81}
+.hero h1{font-size:clamp(27px,6vw,42px);letter-spacing:-1px;line-height:1.07;margin:9px 0 10px;font-weight:1000}
+.hero h1 span{color:var(--gold)}
+.intro{font-size:13px;line-height:1.65;color:#d2e6df;max-width:440px;margin:auto}
+.chips{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin-top:16px}
+.chip{font-size:10px;color:#f8e9b9;border:1px solid #ffffff20;border-radius:30px;padding:7px 10px;background:#ffffff09}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 0}
+.stat{border:1px solid #ffffff18;background:#ffffff09;border-radius:15px;padding:12px 14px;min-width:0}
+.statlabel{font-size:10px;letter-spacing:1.1px;color:#b5c9d0;font-weight:800}
+.statval{font-size:22px;font-weight:950;margin-top:3px;font-variant-numeric:tabular-nums}
+.track{height:7px;border-radius:20px;background:#ffffff16;overflow:hidden;margin-top:9px}
+.fill{height:100%;width:0;background:linear-gradient(90deg,#21d6a1,#ffdb6a);border-radius:20px;transition:width .65s cubic-bezier(.2,.8,.2,1);position:relative}
+.fill:after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,#ffffff9c,transparent);animation:shine 2s linear infinite}
+.panel{background:#f9f7ef;color:#193b3a;border-radius:20px;padding:clamp(15px,3.5vw,24px);box-shadow:0 10px 30px #0002;animation:fade .45s ease both}
+.cat{display:inline-flex;align-items:center;gap:6px;background:#e5efe5;color:#24634e;padding:7px 10px;border-radius:8px;font-size:10px;letter-spacing:.8px;font-weight:950}
+.question{font-size:clamp(20px,4vw,26px);line-height:1.3;font-weight:950;margin:15px 0 7px;letter-spacing:-.4px}
+.sub{font-size:12px;color:#77857d;margin-bottom:17px}
+.answers{display:grid;gap:9px}
+.answer{display:flex;align-items:center;gap:11px;text-align:left;width:100%;background:#fff;border:1.5px solid #e4e5d9;color:#213e3b;border-radius:13px;padding:12px;font:600 13px/1.5 system-ui;cursor:pointer;transition:transform .18s,border-color .2s,background .2s,box-shadow .2s}
+.answer:not(:disabled):hover{transform:translateY(-2px);border-color:#caa33d;box-shadow:0 5px 14px #1a4a3910}
+.letter{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:9px;background:#edf0e7;color:#37554c;font-weight:950}
+.answer.sel{border-color:#d9aa34;background:#fff5d9}
+.answer.good{border-color:#2eaa72;background:#e5f8eb;animation:correct .4s ease}
+.answer.good .letter{background:#2eaa72;color:white}
+.answer.bad{border-color:#e25b58;background:#ffebe7;animation:shake .35s ease}
+.answer.bad .letter{background:#dc5752;color:white}
+.mark{margin-left:auto;font-size:18px;flex:0 0 auto}
+.feedback{margin-top:13px;padding:13px;border-radius:12px;font-size:12px;line-height:1.65;animation:fade .3s ease}
+.feedback strong{display:block;margin-bottom:3px;font-size:14px}
+.feedback.ok{background:#e0f5e8;color:#1b6545}
+.feedback.no{background:#ffebe5;color:#913d33}
+.controls{display:flex;gap:9px;margin-top:17px}
+.btn{border:0;border-radius:12px;padding:12px 15px;font:850 12px system-ui;cursor:pointer;transition:transform .18s,box-shadow .18s,filter .2s,opacity .2s}
+.btn:active{transform:scale(.97)}
+.next{flex:1;background:#173e3a;color:#fff;box-shadow:0 4px 0 #0a2928}
+.next:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 6px 0 #0a2928,0 8px 18px #0002}
+.next:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.reset{background:#e8e9de;color:#496158}
+.reset:hover{filter:brightness(.96);transform:translateY(-2px)}
+.tip{text-align:center;font-size:10px;color:#a9c0ca;margin-top:14px;line-height:1.5}
+.result{text-align:center;padding:18px 4px 6px;animation:fade .6s ease both}
+.full{background:linear-gradient(140deg,#174c3f,#0a3335);border:1px solid #ffdb6a55;border-radius:18px;padding:20px 12px;position:relative;overflow:hidden}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.piece{position:absolute;top:-16px;width:8px;height:12px;border-radius:2px;animation:fall var(--dur) linear var(--delay) forwards}
+.trophy{font-size:76px;display:inline-block;transform-origin:50% 75%;filter:drop-shadow(0 9px 15px #b98b3055)}
+.trophy.spin{animation:trophy 1.5s cubic-bezier(.2,.8,.2,1) both,trophyfloat 2s ease-in-out 1.5s infinite}
+.resulttitle{font-size:clamp(27px,6vw,38px);font-weight:1000;margin:7px 0}
+.finalscore{font-size:45px;font-weight:1000;color:#c38a18;animation:pop .6s ease both}
+.resulttext{font-size:13px;line-height:1.7;color:#d3e5dc;max-width:390px;margin:8px auto 19px}
+.restart{background:var(--gold);color:#183c36;padding:14px 19px;font-size:13px}
+.hide{display:none!important}
+@keyframes entry{0%{opacity:0;transform:perspective(400px) rotateY(0) scale(.25)}60%{opacity:1;transform:perspective(400px) rotateY(400deg) scale(1.1)}100%{transform:perspective(400px) rotateY(360deg) scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -5px}}
+@keyframes orb{to{transform:translate(50px,40px) scale(1.3)}}
+@keyframes shine{to{transform:translateX(200%)}}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(.75)}70%{transform:scale(1.13)}100%{transform:scale(1)}}
+@keyframes correct{50%{transform:scale(1.02)}}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes trophy{0%{transform:rotateY(0) scale(.4);opacity:0}35%{opacity:1}100%{transform:rotateY(720deg) scale(1)}}
+@keyframes trophyfloat{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@keyframes fall{to{transform:translate3d(var(--drift),460px,0) rotate(760deg);opacity:.1}}
+@media(max-width:400px){body{padding:12px 8px}.hero{padding:20px 10px}.stats{gap:7px}.stat{padding:10px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="scene"><div class="orb one"></div><div class="orb two"></div></div>
+<main class="shell">
+<div class="top"><div class="brand">✦ КЛАСС <span style="color:#ffd05b">5Д</span></div><div class="badge">🎮 ИНТЕРАКТИВНЫЙ КВИЗ</div></div>
+<section class="hero">
+<div class="emblem"><div class="crest">5Д<small>♡ CLASS</small></div></div>
+<div class="eyebrow">ОДИН КЛАСС · ОДНА КОМАНДА</div>
+<h1>Правила <span>нашего</span><br>чата ♡</h1>
+<p class="intro">Добро пожаловать в команду 5Д! Проверь свои знания, собери баллы и докажи, что ты настоящий хранитель дружной атмосферы.</p>
+<div class="chips"><span class="chip">🤝 Уважение</span><span class="chip">📚 Учёба</span><span class="chip">🛡️ Безопасность</span><span class="chip">💛 Дружба</span></div>
+</section>
+<div class="stats">
+<div class="stat"><div class="statlabel">ТВОЙ ПРОГРЕСС</div><div class="statval" id="count">01 / 09</div><div class="track"><div class="fill" id="bar"></div></div></div>
+<div class="stat"><div class="statlabel">ТВОИ БАЛЛЫ</div><div class="statval" id="score">⭐ 0</div><div style="font-size:10px;color:#a8c2c9;margin-top:3px">За каждый верный ответ</div></div>
+</div>
+<section class="panel" id="game">
+<div class="cat" id="cat">🤝 УВАЖЕНИЕ</div>
+<h2 class="question" id="question"></h2>
+<div class="sub">Выбери один ответ — и узнай, почему он правильный.</div>
+<div class="answers" id="answers"></div>
+<div class="feedback hide" id="feedback" aria-live="polite"></div>
+<div class="controls"><button class="btn reset" id="reset">↻ Сначала</button><button class="btn next" id="next" disabled>Проверить ответ →</button></div>
+</section>
+<section class="result hide" id="result">
+<div class="full"><div class="confetti" id="confetti"></div><div class="trophy" id="trophy">🏆</div><div class="eyebrow">ТВОЙ РЕЗУЛЬТАТ</div><div class="resulttitle" id="resulttitle">Квиз пройден!</div><div class="finalscore" id="finalscore">0 / 9</div><p class="resulttext" id="resulttext"></p><button class="btn restart" id="again">✨ Пройти ещё раз</button></div>
+</section>
+<div class="tip">✦ Отвечай честно · Учись новому · Поддерживай команду ✦</div>
+</main>
+<script>
+(function(){
+const qs=[
+{c:"🤝 УВАЖЕНИЕ",q:"Одноклассник ошибся в сообщении. Как поступить?",a:["Начать высмеивать его","Спокойно подсказать, не обижая","Позвать всех посмеяться"],k:1,e:"Ошибаться может каждый. Не оскорбляем участников и не устраиваем травлю."},
+{c:"🚫 БЕЗ СПАМА",q:"Как лучше отправлять мемы и стикеры?",a:["Отправить десятки подряд","Засыпать чат одинаковыми сообщениями","Отправлять умеренно и не засорять чат"],k:2,e:"Мемы разрешены, но не нужно злоупотреблять стикерами, GIF и одинаковыми сообщениями."},
+{c:"🔒 ЛИЧНЫЕ ДАННЫЕ",q:"Можно ли отправить чужой номер телефона в чат без разрешения?",a:["Нет, сначала нужно разрешение","Да, если это одноклассник","Да, если номер нужен друзьям"],k:0,e:"Не публикуем чужие номера, адреса, пароли и другие личные данные без согласия."},
+{c:"📚 УЧЁБА",q:"Одноклассник не понял домашнее задание. Что делать?",a:["Высмеять его вопрос","Помочь разобраться и объяснить","Сказать, чтобы он больше не спрашивал"],k:1,e:"Не высмеиваем тех, кто чего-то не понимает. Помогаем друг другу с учёбой."},
+{c:"😂 МЕМЫ И ШУТКИ",q:"Человеку неприятна твоя шутка. Как поступить?",a:["Продолжать, ведь это шутка","Попросить всех смеяться дальше","Остановиться и уважать его просьбу"],k:2,e:"Шутки разрешены, пока они не обижают других. Если просят остановиться — остановись."},
+{c:"⚖️ КОНФЛИКТЫ",q:"В чате начинается ссора. Как правильно действовать?",a:["Добавить оскорбление","Спокойно обсудить проблему или обратиться к администратору","Разжигать спор новыми сообщениями"],k:1,e:"Разногласия решаем спокойно, без угроз и оскорблений. При необходимости обращаемся к администратору."},
+{c:"🛡️ АДМИНИСТРАТОРЫ",q:"Для чего нужны права администратора?",a:["Чтобы мстить тем, кто не нравится","Чтобы угрожать участникам","Чтобы поддерживать порядок справедливо"],k:2,e:"Администраторы помогают поддерживать порядок, а не используют свои права для личной мести."},
+{c:"📢 ВАЖНЫЕ СООБЩЕНИЯ",q:"Что делать с подозрительными ссылками?",a:["Не распространять их без проверки","Отправить всем подряд","Попросить всех срочно открыть ссылку"],k:0,e:"Не распространяем подозрительные ссылки и файлы. Важную информацию об учёбе пишем понятно."},
+{c:"💛 ГЛАВНОЕ ПРАВИЛО",q:"Каким должен быть наш школьный чат?",a:["Можно делать всё, даже если другим неприятно","Дружелюбным, безопасным и комфортным для всех","Только для мемов, без школьных сообщений"],k:1,e:"Общаемся так, чтобы всем было комфортно. Свобода общения не должна превращаться в травлю или спам."}
+];
+let i=0,score=0,choice=-1,locked=false;
+const $=id=>document.getElementById(id);
+function render(){
+const q=qs[i];choice=-1;locked=false;
+$("count").textContent=String(i+1).padStart(2,"0")+" / 09";
+$("bar").style.width=((i+1)/qs.length*100)+"%";
+$("score").textContent="⭐ "+score;
+$("cat").textContent=q.c;$("question").textContent=q.q;
+$("feedback").className="feedback hide";$("feedback").textContent="";
+$("next").disabled=true;$("next").textContent="Проверить ответ →";$("answers").innerHTML="";
+q.a.forEach((a,j)=>{
+const b=document.createElement("button");b.type="button";b.className="answer";
+const l=document.createElement("span");l.className="letter";l.textContent=["А","Б","В"][j];
+const t=document.createElement("span");t.textContent=a;t.style.flex="1";
+b.append(l,t);b.onclick=()=>choose(j);$("answers").appendChild(b)
+});
+}
+function choose(j){
+if(locked)return;choice=j;
+Array.from($("answers").children).forEach((b,n)=>b.classList.toggle("sel",n===j));
+$("next").disabled=false;
+}
+function advance(){
+if(!locked){
+if(choice<0)return;
+locked=true;const q=qs[i],ok=choice===q.k;if(ok)score++;
+Array.from($("answers").children).forEach((b,n)=>{
+b.disabled=true;b.classList.remove("sel");
+if(n===q.k){b.classList.add("good");const m=document.createElement("span");m.className="mark";m.textContent="✓";b.append(m)}
+else if(n===choice){b.classList.add("bad");const m=document.createElement("span");m.className="mark";m.textContent="✕";b.append(m)}
+});
+const f=$("feedback");f.className="feedback "+(ok?"ok":"no");
+const title=document.createElement("strong");title.textContent=ok?"✨ Верно! Отличная работа!":"💡 Не совсем — запомни на будущее";
+f.replaceChildren(title,document.createTextNode(q.e));
+$("score").textContent="⭐ "+score;
+$("score").classList.remove("pulse");void $("score").offsetWidth;$("score").classList.add("pulse");
+$("next").textContent=i===qs.length-1?"Узнать результат 🏆":"Дальше →";
+}else if(i<qs.length-1){i++;render()}else finish();
+}
+function confetti(){
+const box=$("confetti");box.innerHTML="";
+const colors=["#ffd05b","#44d6a1","#fff2ca","#ff7d78","#76c9ff","#dca8ff"];
+for(let n=0;n<75;n++){
+const p=document.createElement("i");p.className="piece";
+p.style.left=Math.random()*100+"%";p.style.background=colors[n%colors.length];
+p.style.setProperty("--dur",(2.1+Math.random()*2.8)+"s");
+p.style.setProperty("--delay",(Math.random()*1.2)+"s");
+p.style.setProperty("--drift",((Math.random()-.5)*180)+"px");box.append(p);
+}
+}
+function finish(){
+$("game").classList.add("hide");$("result").classList.remove("hide");
+$("count").textContent="ГОТОВО!";$("bar").style.width="100%";
+$("finalscore").textContent=score+" / 9";
+$("trophy").classList.remove("spin");void $("trophy").offsetWidth;
+if(score===9){
+$("trophy").textContent="🏆";$("resulttitle").textContent="НЕВЕРОЯТНО!";
+$("resulttext").textContent="Идеальные 9 из 9! Ты настоящий чемпион дружбы 5Д. Ты знаешь, как уважать одноклассников, помогать с учёбой и поддерживать безопасную атмосферу. Эта победа достойна кубка!";
+confetti();
+}else if(score>=6){
+$("trophy").textContent="🥇";$("resulttitle").textContent="ОТЛИЧНАЯ РАБОТА!";
+$("resulttext").textContent="Ты уже хорошо знаешь правила нашего чата! Посмотри пояснения к ошибкам и попробуй забрать кубок за идеальный результат.";
+}else{
+$("trophy").textContent="📚";$("resulttitle").textContent="ПРОКАЧАЕМ ЗНАНИЯ!";
+$("resulttext").textContent="Каждый чемпион с чего-то начинает! Ты уже познакомился с правилами. Попробуй ещё раз — теперь ты знаешь больше.";
+}
+$("trophy").classList.add("spin");
+}
+function reset(){i=0;score=0;$("game").classList.remove("hide");$("result").classList.add("hide");render()}
+$("next").addEventListener("click",advance);
+$("reset").addEventListener("click",reset);
+$("again").addEventListener("click",reset);
+render();
+})();
+</script>
+</body>
+</html>
